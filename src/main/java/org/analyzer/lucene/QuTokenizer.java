@@ -184,12 +184,23 @@ public final class QuTokenizer extends Tokenizer {
                         logger.info("response data:" + System.currentTimeMillis());
                         logger.info(resultStr);
 
-                        Result result = JSON.parseObject(resultStr, Result.class);
+                        Map<String, Object> result = JSON.parseObject(resultStr);
 
                         Set<String> ignore = new HashSet<>(config.getOrDefault(Constants.IGNORE_POS_KEY, new ArrayList<>()));
 
                         logger.info("filter data:" + System.currentTimeMillis());
-                        result.getSegment().stream().filter(x -> !ignore.contains(x.getPos())).forEach(words::add);
+                        List<Map<String, Object>> segmentList = (List<Map<String, Object>>) result.getOrDefault("segment", new ArrayList<>());
+
+                        segmentList.stream().filter(x -> {
+                            String pos = (String) x.get("pos");
+                            return !ignore.contains(pos);
+                        }).forEach(x -> {
+                            Segment segment = new Segment();
+                            segment.setPos((String) x.get("pos"));
+                            segment.setStartIndex((Integer) x.get("startIndex"));
+                            segment.setEndIndex((Integer) x.get("endIndex"));
+                            segment.setText((String) x.get("text"));
+                        });
                     }
 
                 }

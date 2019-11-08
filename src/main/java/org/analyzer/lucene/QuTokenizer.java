@@ -136,7 +136,7 @@ public final class QuTokenizer extends Tokenizer {
 
             logger.info("FullStr");
             logger.info(fullStr);
-            words = doQueryRemoteForSeg(fullStr);
+            words = getSetUnprivileged(fullStr);
             logger.info("List:");
             logger.info(JSON.toJSONString(words));
 

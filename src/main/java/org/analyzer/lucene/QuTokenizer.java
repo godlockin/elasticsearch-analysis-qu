@@ -90,6 +90,9 @@ public final class QuTokenizer extends Tokenizer {
         config.put(Constants.URL_KEY, settings.getAsList(Constants.URL_KEY));
         config.put(Constants.TRGT_TYPES_KEY, settings.getAsList(Constants.TRGT_TYPES_KEY));
         config.put(Constants.IGNORE_POS_KEY, settings.getAsList(Constants.IGNORE_POS_KEY));
+
+        logger.info("Config:");
+        logger.info(config);
     }
 
     @Override
@@ -120,9 +123,6 @@ public final class QuTokenizer extends Tokenizer {
     public void reset() throws IOException {
         super.reset();
 
-        logger.info("Config:");
-        logger.info(config);
-
         // reset the input content
         endPosition = -1;
         increment = 0;
@@ -135,8 +135,6 @@ public final class QuTokenizer extends Tokenizer {
                 return;
             }
 
-            logger.info("FullStr");
-            logger.info(fullStr);
             words = doQueryRemoteForSeg(fullStr);
 
         } catch (IOException e) {
@@ -155,38 +153,28 @@ public final class QuTokenizer extends Tokenizer {
         List<Segment> words = new ArrayList<>();
 
         try {
-            logger.info("init request:" + System.currentTimeMillis());
             QuRequest request = new QuRequest();
             request.setQuery(fullStr);
             request.setTypes(config.getOrDefault(Constants.TRGT_TYPES_KEY, Constants.DEFAULT_TYPES));
 
-            logger.info("init post request:" + System.currentTimeMillis());
             HttpPost post = new HttpPost(new ArrayList<>(config.get(Constants.URL_KEY)).get(0));
             post.setConfig(requestConfig);
             post.setEntity(new StringEntity(JSON.toJSONString(request), ContentType.APPLICATION_JSON));
             post.setHeader("Content-type", "application/json");
-            logger.info(new ArrayList<>(config.get(Constants.URL_KEY)).get(0));
 
-            logger.info("do request:" + System.currentTimeMillis());
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
-                logger.info("do request call:" + System.currentTimeMillis());
                 CloseableHttpResponse response = httpClient.execute(post);
-                logger.info("get response:" + System.currentTimeMillis());
                 if (200 == response.getStatusLine().getStatusCode()) {
                     HttpEntity entity = response.getEntity();
 
-                    logger.info("load response data:" + System.currentTimeMillis());
                     try (BufferedReader bfr = new BufferedReader(new InputStreamReader(entity.getContent(), StandardCharsets.UTF_8))) {
                         String resultStr = bfr.lines().map(String::trim).reduce("", (x, y) -> x + y).trim();
-                        logger.info("response data:" + System.currentTimeMillis());
-                        logger.info(resultStr);
 
                         Result result = JSON.parseObject(resultStr, Result.class);
 
                         Set<String> ignore = new HashSet<>(config.getOrDefault(Constants.IGNORE_POS_KEY, new ArrayList<>()));
 
-                        logger.info("filter data:" + System.currentTimeMillis());
                         result.getSegment().stream().filter(x -> !ignore.contains(x.getPos())).forEach(words::add);
                     }
 
@@ -200,10 +188,6 @@ public final class QuTokenizer extends Tokenizer {
             e.printStackTrace();
             logger.error("Error happened during remote call build," + e);
         }
-
-        logger.info("done:" + System.currentTimeMillis());
-        logger.info("List:");
-        logger.info(JSON.toJSONString(words));
 
         return words;
     }

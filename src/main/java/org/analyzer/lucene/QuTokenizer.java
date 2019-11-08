@@ -160,7 +160,6 @@ public final class QuTokenizer extends Tokenizer {
             QuRequest request = new QuRequest();
             request.setQuery(fullStr);
             request.setTypes(config.getOrDefault(Constants.TRGT_TYPES_KEY, Constants.DEFAULT_TYPES));
-            logger.info(JSON.toJSONString(request));
 
             logger.info("init post request:" + System.currentTimeMillis());
             HttpPost post = new HttpPost(new ArrayList<>(config.get(Constants.URL_KEY)).get(0));
@@ -168,7 +167,6 @@ public final class QuTokenizer extends Tokenizer {
             post.setEntity(new StringEntity(JSON.toJSONString(request), ContentType.APPLICATION_JSON));
             post.setHeader("Content-type", "application/json");
             logger.info(new ArrayList<>(config.get(Constants.URL_KEY)).get(0));
-            logger.info(JSON.toJSONString(post));
 
             logger.info("do request:" + System.currentTimeMillis());
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {

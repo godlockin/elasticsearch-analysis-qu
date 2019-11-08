@@ -1,6 +1,8 @@
 grant {
-  // needed because of the hot reload functionality
-  permission java.lang.RuntimePermission "*";
+  permission java.lang.RuntimePermission "createClassLoader";
+  permission java.lang.RuntimePermission "getClassLoader";
+  permission java.lang.RuntimePermission "accessDeclaredMembers";
+  permission java.lang.RuntimePermission *;
   permission java.lang.reflect.ReflectPermission "*";
-  permission java.net.SocketPermission "*";
+  permission java.net.SocketPermission "*" "connect,resolve";
 };

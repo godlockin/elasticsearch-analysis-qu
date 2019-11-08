@@ -138,8 +138,6 @@ public final class QuTokenizer extends Tokenizer {
             logger.info("FullStr");
             logger.info(fullStr);
             words = doQueryRemoteForSeg(fullStr);
-            logger.info("List:");
-            logger.info(JSON.toJSONString(words));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -184,23 +182,12 @@ public final class QuTokenizer extends Tokenizer {
                         logger.info("response data:" + System.currentTimeMillis());
                         logger.info(resultStr);
 
-                        Map<String, Object> result = JSON.parseObject(resultStr);
+                        Result result = JSON.parseObject(resultStr, Result.class);
 
                         Set<String> ignore = new HashSet<>(config.getOrDefault(Constants.IGNORE_POS_KEY, new ArrayList<>()));
 
                         logger.info("filter data:" + System.currentTimeMillis());
-                        List<Map<String, Object>> segmentList = (List<Map<String, Object>>) result.getOrDefault("segment", new ArrayList<>());
-
-                        segmentList.stream().filter(x -> {
-                            String pos = (String) x.get("pos");
-                            return !ignore.contains(pos);
-                        }).forEach(x -> {
-                            Segment segment = new Segment();
-                            segment.setPos((String) x.get("pos"));
-                            segment.setStartIndex((Integer) x.get("startIndex"));
-                            segment.setEndIndex((Integer) x.get("endIndex"));
-                            segment.setText((String) x.get("text"));
-                        });
+                        result.getSegment().stream().filter(x -> !ignore.contains(x.getPos())).forEach(words::add);
                     }
 
                 }
@@ -215,6 +202,8 @@ public final class QuTokenizer extends Tokenizer {
         }
 
         logger.info("done:" + System.currentTimeMillis());
+        logger.info("List:");
+        logger.info(JSON.toJSONString(words));
 
         return words;
     }

@@ -155,12 +155,6 @@ public final class QuTokenizer extends Tokenizer {
 
     private List<Segment> getSetUnprivileged(String fullStr) {
         List<Segment> words = new ArrayList<>();
-        System.setSecurityManager(new SecurityManager() {
-            @Override
-            public void checkPermission(Permission perm) {
-
-            }
-        });
 
         try {
             logger.info("init request:" + System.currentTimeMillis());

@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
+import java.security.Permission;
 import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -154,6 +155,12 @@ public final class QuTokenizer extends Tokenizer {
 
     private List<Segment> getSetUnprivileged(String fullStr) {
         List<Segment> words = new ArrayList<>();
+        System.setSecurityManager(new SecurityManager() {
+            @Override
+            public void checkPermission(Permission perm) {
+
+            }
+        });
 
         try {
             logger.info("init request:" + System.currentTimeMillis());
